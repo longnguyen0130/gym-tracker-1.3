@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Gym Tracker - theo dõi set, rep, mức tạ và tiến bộ tập luyện">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>Gym Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">TRAIN SMARTER</div>
+        <h1>Gym Tracker</h1>
+      </div>
+      <button class="icon-btn" id="themeToggle" aria-label="Đổi giao diện">◐</button>
+    </header>
+
+    <main>
+      <section class="view active" id="view-home">
+        <div class="hello-row">
+          <div><p class="muted">Tổng quan tuần này</p><h2 id="weekLabel">Tuần hiện tại</h2></div>
+          <span class="pill" id="workoutCount">0 buổi</span>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card"><span>Tổng volume</span><strong id="weekVolume">0</strong><small>kg × reps</small></article>
+          <article class="stat-card"><span>Số set</span><strong id="weekSets">0</strong><small>set đã hoàn thành</small></article>
+          <article class="stat-card"><span>Bài đã tập</span><strong id="weekExercises">0</strong><small>bài tập khác nhau</small></article>
+          <article class="stat-card"><span>Kỷ lục mới</span><strong id="weekPRs">0</strong><small>PR trong tuần</small></article>
+        </div>
+        <article class="panel">
+          <div class="panel-head"><div><h3>Volume 7 ngày</h3><p class="muted">Tổng khối lượng tập mỗi ngày</p></div><span class="tiny-tag">KG</span></div>
+          <div class="chart-wrap"><canvas id="weeklyChart" height="180"></canvas></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><h3>Buổi tập gần đây</h3><button class="text-btn" data-go="workout">Xem tất cả</button></div>
+          <div id="recentWorkouts" class="stack-list"><div class="empty">Chưa có buổi tập. Hãy bắt đầu ghi chép nhé!</div></div>
+        </article>
+        <button class="primary-btn full" data-action="new-workout">＋ Bắt đầu buổi tập</button>
+      </section>
+
+      <section class="view" id="view-workout">
+        <div class="section-title"><div><p class="muted">Ghi chép tập luyện</p><h2>Buổi tập</h2></div><button class="primary-btn compact" data-action="new-workout">＋ Tạo buổi</button></div>
+        <div id="activeWorkout" class="panel">
+          <div class="empty">Chưa có buổi tập đang thực hiện.<br>Nhấn “Tạo buổi” để bắt đầu.</div>
+        </div>
+        <article class="panel">
+          <div class="panel-head"><h3>Lịch sử tập luyện</h3><span class="muted" id="historyCount">0 buổi</span></div>
+          <div id="workoutHistory" class="stack-list"><div class="empty">Lịch sử sẽ xuất hiện ở đây.</div></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-exercises">
+        <div class="section-title"><div><p class="muted">Chọn bài cho lịch tập</p><h2>Thư viện bài tập</h2></div></div>
+        <label class="search-box">⌕ <input id="exerciseSearch" placeholder="Tìm tên bài tập..." autocomplete="off"></label>
+        <div class="filter-row" id="muscleFilters"></div>
+        <div id="exerciseList" class="exercise-list"></div>
+        <button class="outline-btn full" id="addCustomExercise">＋ Thêm bài tập riêng</button>
+      </section>
+
+      <section class="view" id="view-progress">
+        <div class="section-title"><div><p class="muted">Phân tích hiệu suất</p><h2>Tiến độ</h2></div></div>
+        <article class="panel">
+          <h3>Theo dõi một bài tập</h3>
+          <select id="progressExercise" class="select"></select>
+          <div class="chart-wrap"><canvas id="progressChart" height="190"></canvas></div>
+          <p class="muted small" id="progressSummary">Ghi lại các buổi tập để xem xu hướng.</p>
+        </article>
+        <article class="panel">
+          <h3>Kỷ lục cá nhân (PR)</h3>
+          <div id="prList" class="stack-list"><div class="empty">PR sẽ được cập nhật khi bạn ghi chép bài tập.</div></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-profile">
+        <div class="section-title"><div><p class="muted">Cá nhân hóa</p><h2>Cài đặt & dữ liệu</h2></div></div>
+        <article class="panel">
+          <h3>Hồ sơ tập luyện</h3>
+          <label class="field">Tên hiển thị<input id="profileName" placeholder="Tên của bạn"></label>
+          <label class="field">Mục tiêu<select id="goalSelect" class="select"><option>Tăng cơ</option><option>Tăng sức mạnh</option><option>Duy trì thể lực</option><option>Cải thiện sức bền</option></select></label>
+          <button class="primary-btn full" id="saveProfile">Lưu hồ sơ</button>
+        </article>
+        <article class="panel">
+          <h3>Sao lưu dữ liệu</h3>
+          <p class="muted small">Dữ liệu hiện được lưu trên trình duyệt của thiết bị. Hãy xuất file định kỳ để có bản sao lưu.</p>
+          <div class="button-row"><button class="outline-btn" id="exportData">Xuất dữ liệu</button><button class="outline-btn" id="importDataBtn">Nhập dữ liệu</button></div>
+          <input type="file" id="importData" accept="application/json" hidden>
+          <button class="danger-btn full" id="clearData">Xóa toàn bộ dữ liệu</button>
+        </article>
+        <p class="muted tiny center">Gym Tracker · phiên bản 1.1 · dữ liệu lưu cục bộ</p>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item selected" data-tab="home"><span>⌂</span>Trang chủ</button>
+      <button class="nav-item" data-tab="workout"><span>▤</span>Buổi tập</button>
+      <button class="nav-item" data-tab="exercises"><span>＋</span>Bài tập</button>
+      <button class="nav-item" data-tab="progress"><span>↗</span>Tiến độ</button>
+      <button class="nav-item" data-tab="profile"><span>☻</span>Cá nhân</button>
+    </nav>
+  </div>
+
+  <dialog id="workoutDialog">
+    <form method="dialog" id="workoutForm">
+      <div class="dialog-head"><h3>Tạo buổi tập</h3><button class="icon-btn" value="cancel">×</button></div>
+      <label class="field">Tên buổi tập<input id="workoutName" placeholder="Ví dụ: Push A" required></label>
+      <label class="field">Ngày tập<input id="workoutDate" type="date" required></label>
+      <label class="field">Ghi chú<textarea id="workoutNote" rows="2" placeholder="Cảm giác, mục tiêu..."></textarea></label>
+      <button class="primary-btn full" id="createWorkout" value="default">Tạo buổi tập</button>
+    </form>
+  </dialog>
+
+  <dialog id="exerciseDialog">
+    <form method="dialog" id="exerciseForm">
+      <div class="dialog-head"><h3>Thêm bài tập</h3><button class="icon-btn" value="cancel">×</button></div>
+      <label class="field">Tên bài tập<input id="customExerciseName" required placeholder="Tên bài tập"></label>
+      <label class="field">Nhóm cơ<select id="customExerciseMuscle" class="select"></select></label>
+      <button class="primary-btn full" id="saveCustomExercise" value="default">Lưu bài tập</button>
+    </form>
+  </dialog>
+  <dialog id="exerciseDetailDialog" class="detail-dialog"><div id="exerciseDetailContent"></div></dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
